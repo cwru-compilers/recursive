@@ -43,8 +43,9 @@ class parse(object):
     def collapse(self, subtree, extra):
         if extra is None:
             return subtree
-        op, left = extra
-        return Node(op).addkid(subtree).addkid(left)
+        else:
+            op, right = extra
+            return Node(op).addkid(subtree).addkid(right)
 
     def Expr(self, i):
         # Expr   -> Term Expr_
@@ -56,21 +57,25 @@ class parse(object):
         # Expr_  -> PLUS Term Expr_
         #         | DASH Term Expr_
         #         | e
-        return self.alt(i, None, self.Expr_1, self.Expr_2, self.Expr_3)
+        return self.alt(
+            i,
+            None,
+            self.Expr_1, self.Expr_2, self.Expr_3
+        )
 
     def Expr_1(self, i): 
         # Expr_  -> PLUS Term Expr_
         i, _ = self.consume(i, lexer.PLUS)
         i, term = self.Term(i)
         i, expr_ = self.Expr_(i)
-        return i, ('+', self.collapse(term, expr_))
+        return i, ("+", self.collapse(term, expr_))
 
     def Expr_2(self, i):
         # Expr_  -> DASH Term Expr_
         i, _ = self.consume(i, lexer.DASH)
         i, term = self.Term(i)
         i, expr_ = self.Expr_(i)
-        return i, ('-', self.collapse(term, expr_))
+        return i, ("-", self.collapse(term, expr_))
 
     def Expr_3(self, i):
         # Expr_  -> e
@@ -86,21 +91,25 @@ class parse(object):
         # Term_  -> STAR Unary Term_
         #         | SLASH Unary Term_
         #         | e
-        return self.alt(i, None, self.Term_1, self.Term_2, self.Term_3)
+        return self.alt(
+            i,
+            None,
+            self.Term_1, self.Term_2, self.Term_3
+        )
 
     def Term_1(self, i): 
         # Term_  -> STAR Unary Term_
         i, _ = self.consume(i, lexer.STAR)
         i, unary = self.Unary(i)
         i, term_ = self.Term_(i)
-        return i, ('*', self.collapse(unary, term_))
+        return i, ("*", self.collapse(unary, term_))
 
     def Term_2(self, i):
         # Term_  -> SLASH Unary Term_
         i, _ = self.consume(i, lexer.SLASH)
         i, unary = self.Unary(i)
         i, term_ = self.Term_(i)
-        return i, ('/', self.collapse(unary, term_))
+        return i, ("/", self.collapse(unary, term_))
 
     def Term_3(self, i):
         # Term_  -> e

@@ -142,21 +142,63 @@ def test_collapse_bad_subtree():
     parser = new_parser()
     parser.collapse(Node(1), Node("*"))
 
+def test_1_Term():
+    parser = new_parser()
+    parser.init("1 * 2")
+    i, node = parser.Term(0)
+    eq(i, 3)
+    eq(node, Node("*").addkid(Node(1)).addkid(Node(2)))
+
+def test_2_Term():
+    parser = new_parser()
+    parser.init("1 / 2")
+    i, node = parser.Term(0)
+    eq(i, 3)
+    eq(node, Node("/").addkid(Node(1)).addkid(Node(2)))
+
+def test_3_Term():
+    parser = new_parser()
+    parser.init("1 / 2 * 3")
+    i, node = parser.Term(0)
+    eq(i, 5)
+    eq(node, Node("/")
+              .addkid(Node(1))
+              .addkid(
+                Node("*")
+                  .addkid(Node(2))
+                  .addkid(Node(3))
+              )
+    )
+
+def test_4_Term():
+    parser = new_parser()
+    parser.init("(1 / 2) * 3")
+    i, node = parser.Term(0)
+    eq(i, 7)
+    eq(node, Node("*")
+              .addkid(
+                Node("/")
+                  .addkid(Node(1))
+                  .addkid(Node(2))
+              )
+              .addkid(Node(3))
+    )
+
 def test_1_Term_():
     parser = new_parser()
     parser.init("* 2")
-    i, (op, left) = parser.Term_(0)
+    i, (op, right) = parser.Term_(0)
     eq(i, 2)
     eq(op, "*")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_Term_1():
     parser = new_parser()
     parser.init("* 2")
-    i, (op, left) = parser.Term_1(0)
+    i, (op, right) = parser.Term_1(0)
     eq(i, 2)
     eq(op, "*")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 @raises(SyntaxError)
 def test_Term_1_bad():
@@ -167,18 +209,18 @@ def test_Term_1_bad():
 def test_2_Term_():
     parser = new_parser()
     parser.init("/ 2")
-    i, (op, left) = parser.Term_(0)
+    i, (op, right) = parser.Term_(0)
     eq(i, 2)
     eq(op, "/")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_Term_2():
     parser = new_parser()
     parser.init("/ 2")
-    i, (op, left) = parser.Term_2(0)
+    i, (op, right) = parser.Term_2(0)
     eq(i, 2)
     eq(op, "/")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 @raises(SyntaxError)
 def test_Term_2_bad():
@@ -202,12 +244,12 @@ def test_Term_3():
 def test_2_level_Term_():
     parser = new_parser()
     parser.init("* 2 * 3")
-    i, (op, left) = parser.Term_(0)
+    i, (op, right) = parser.Term_(0)
     eq(op, "*")
-    eq(left.label, "*")
-    eq(len(left.children), 2)
-    eq(left.children[0].label, 2)
-    eq(left.children[1].label, 3)
+    eq(right.label, "*")
+    eq(len(right.children), 2)
+    eq(right.children[0].label, 2)
+    eq(right.children[1].label, 3)
 
 def test_2_level_Term():
     parser = new_parser()
@@ -236,34 +278,34 @@ def test_2_level_Expr_Term():
 def test_1_Expr_():
     parser = new_parser()
     parser.init("+ 2")
-    i, (op, left) = parser.Expr_(0)
+    i, (op, right) = parser.Expr_(0)
     eq(i, 2)
     eq(op, "+")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_Expr_1():
     parser = new_parser()
     parser.init("+ 2")
-    i, (op, left) = parser.Expr_1(0)
+    i, (op, right) = parser.Expr_1(0)
     eq(i, 2)
     eq(op, "+")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_2_Expr_():
     parser = new_parser()
     parser.init("- 2")
-    i, (op, left) = parser.Expr_(0)
+    i, (op, right) = parser.Expr_(0)
     eq(i, 2)
     eq(op, "-")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_Expr_2():
     parser = new_parser()
     parser.init("- 2")
-    i, (op, left) = parser.Expr_2(0)
+    i, (op, right) = parser.Expr_2(0)
     eq(i, 2)
     eq(op, "-")
-    eq(left.label, 2)
+    eq(right.label, 2)
 
 def test_3_Expr_():
     parser = new_parser()
